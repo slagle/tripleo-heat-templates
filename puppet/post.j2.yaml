@@ -9,6 +9,10 @@ parameters:
     type: json
     description: Mapping of Role name e.g Controller to a list of servers
 
+  server_names:
+    type: json
+    description: Mapping of Role name e.g Controller to a list of server names
+
   role_data:
     type: json
     description: Mapping of Role name e.g Controller to the per-role data
@@ -29,9 +33,11 @@ resources:
     type: deploy-artifacts.yaml
 
   {{role.name}}ArtifactsDeploy:
-    type: OS::Heat::StructuredDeployments
+    type: OS::TripleO::StructuredDeploymentGroup
     properties:
+      name: {{role.name}}ArtifactsDeploy
       servers:  {get_param: [servers, {{role.name}}]}
+      server_names:  {get_param: [servers, {{role.name}}, name]}
       config: {get_resource: {{role.name}}ArtifactsConfig}
 
   {{role.name}}PreConfig:
@@ -58,7 +64,7 @@ resources:
   # Step through a series of configuration steps
 {% for step in range(1, 6) %}
   {{role.name}}Deployment_Step{{step}}:
-    type: OS::Heat::StructuredDeploymentGroup
+    type: OS::TripleO::StructuredDeploymentGroup
   {% if step == 1 %}
     depends_on: [{{role.name}}PreConfig, {{role.name}}ArtifactsDeploy]
   {% else %}
@@ -70,6 +76,7 @@ resources:
     properties:
       name: {{role.name}}Deployment_Step{{step}}
       servers: {get_param: [servers, {{role.name}}]}
+      server_names: {get_param: [server_names, {{role.name}}]}
       config: {get_resource: {{role.name}}Config}
       input_values:
         step: {{step}}

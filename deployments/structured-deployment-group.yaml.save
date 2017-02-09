@@ -1,0 +1,53 @@
+heat_template_version: ocata
+
+parameters:
+  name:
+    type: string
+  servers:
+    type: json
+  server_names:
+    type: json
+  config:
+    type: string
+  input_values:
+    type: json
+    default: {}
+  DeploymentActionBlacklist:
+    type: json
+    default: {}
+
+resources:
+
+  Server:
+    type: OS::Heat::Value
+    properties:
+      value:
+        - {get_param: [servers, 0]}
+        - {get_param: servers}
+
+  Servers:
+    type: OS::Heat::Value
+    properties:
+      type: json
+      value:
+          expression: let(server_names => $.data.server_names, servers => $.data.servers, blacklist => $.data.blacklist, deployment_name => $.data.deployment_name) -> set($server_names.keys()).difference(set($blacklist.where($deployment_name =~ $.keys().first()).first().values().first().join($server_names.keys(), $server_names[$2] =~ $1, $2))).select($servers[$])
+          data:
+            blacklist: {get_param: DeploymentActionBlacklist}
+            servers: {get_param: servers}
+            server_names: {get_param: server_names}
+            deployment_name: {get_param: name}
+
+
+  # TripleOStructuredDeploymentGroup:
+  # type: OS::Heat::StructuredDeploymentGroup
+  # properties:
+  # name: {get_param: name}
+  # servers: {get_param: servers}
+  # config: {get_param: config}
+  # input_values: {get_param: input_values}
+
+outputs:
+
+  servers:
+    description: servers
+    value: {get_param: servers}

@@ -1,0 +1,28 @@
+{ "data":
+ {
+  "blacklist":
+    [
+        { ".*HostsDeployment": ["compute.*"]},
+        { ".*AllNodesDeployment": [".*"]},
+        { ".*AllNodesValidationDeployment": [".*"]},
+        { ".*UpgradeInitDeployment": [".*"]},
+        { "ControllerDeployedServerDeployment": [".*"]},
+        { "ComputeDeployedServerDeployment": [".*"]},
+        { "UpdateDeployment": [".*"]}
+    ],
+  "servers":
+    {
+      "0": "cont0",
+      "1": "comp1",
+      "2": "comp2",
+      "3": "comp3"},
+  "server_names":
+    {
+      "0": "controller0",
+      "1": "compute1",
+      "2": "compute2",
+      "3": "compute3"},
+  "deployment_name": "ControllerDeployedHostsDeployment"
+}
+
+}

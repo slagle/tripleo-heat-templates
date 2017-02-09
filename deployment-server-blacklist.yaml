@@ -1,0 +1,7 @@
+parameter_defaults:
+  DeploymentActionBlacklist: []
+    # - ".*": [".*"]
+    # - "HostsEntryDeployment": []
+    # - "UpdateDeployment": []
+    # - ".*":
+    # - "tripleo.*"

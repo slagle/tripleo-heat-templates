@@ -365,12 +365,13 @@ resources:
       server: {get_resource: {{role}}}
 
   NetworkDeployment:
-    type: OS::TripleO::SoftwareDeployment
+    type: OS::TripleO::StructuredDeployment
     depends_on: PreNetworkConfig
     properties:
       name: NetworkDeployment
       config: {get_resource: NetworkConfig}
       server: {get_resource: {{role}}}
+      server_name: {get_attr: [{{role}}, name]}
       actions: {get_param: NetworkDeploymentActions}
       input_values:
         bridge_name: br-ex
@@ -390,22 +391,24 @@ resources:
   # Note we may be able to make this conditional on UpgradeInitCommandNotEmpty
   # but https://bugs.launchpad.net/heat/+bug/1649900 needs fixing first
   {{role}}UpgradeInitDeployment:
-    type: OS::Heat::SoftwareDeployment
+    type: OS::TripleO::SoftwareDeployment
     depends_on: NetworkDeployment
     properties:
       name: {{role}}UpgradeInitDeployment
       server: {get_resource: {{role}}}
+      server_name: {get_attr: [{{role}}, name]}
       config: {get_resource: {{role}}UpgradeInitConfig}
 
   {{role}}Deployment:
-    type: OS::Heat::StructuredDeployment
+    type: OS::TripleO::StructuredDeployment
     depends_on: {{role}}UpgradeInitDeployment
     properties:
       name: {{role}}Deployment
       config: {get_resource: {{role}}Config}
       server: {get_resource: {{role}}}
+      server_name: {get_attr: [{{role}}, name]}
       input_values:
-        enable_package_upgrade: {get_attr: [UpdateDeployment, update_managed_packages]}
+        enable_package_upgrade: {get_attr: [UpdateDeployment, resource.TripleOSoftwareDeployment, update_managed_packages]}
 
   {{role}}Config:
     type: OS::Heat::StructuredConfig
@@ -472,10 +475,12 @@ resources:
     type: OS::TripleO::Tasks::PackageUpdate
 
   UpdateDeployment:
-    type: OS::Heat::SoftwareDeployment
+    type: OS::TripleO::SoftwareDeployment
     properties:
+      name: UpdateDeployment
       config: {get_resource: UpdateConfig}
       server: {get_resource: {{role}}}
+      server_name: {get_attr: [{{role}}, name]}
       input_values:
         update_identifier:
           get_param: UpdateIdentifier

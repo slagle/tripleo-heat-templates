@@ -1,6 +1,9 @@
 resource_registry:
 
-  OS::TripleO::SoftwareDeployment: OS::Heat::StructuredDeployment
+  OS::TripleO::SoftwareDeployment: deployments/software-deployment.yaml
+  OS::TripleO::StructuredDeployment: deployments/structured-deployment.yaml
+  OS::TripleO::StructuredDeploymentGroup: deployments/structured-deployment-group.yaml
+  OS::TripleO::StructuredDeployments: deployments/structured-deployment-group.yaml
   OS::TripleO::PostDeploySteps: puppet/post.yaml
   OS::TripleO::AllNodes::SoftwareConfig: puppet/all-nodes-config.yaml
   OS::TripleO::Hosts::SoftwareConfig: hosts-config.yaml

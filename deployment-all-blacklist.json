@@ -1,0 +1,13 @@
+{ "data":
+ {
+  "blacklist":
+    [
+        { ".*": [".*"]}
+    ],
+  "servers": {"1": "comp1"},
+  "server_names": {"1": "compute1"},
+  "deployment_name": "ControllerDeployedHostsDeployment",
+  "signal_transport": "CFN_SIGNAL"
+}
+
+}

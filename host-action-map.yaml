@@ -1,0 +1,10 @@
+parameter_defaults:
+  HostActionMap:
+    tripleo-09:
+      - '.*': []
+    tripleo-08:
+      - '.*': []
+    tripleo-03:
+      - '.*': []
+    tripleo-05:
+      - '.*': []

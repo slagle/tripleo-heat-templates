@@ -64,10 +64,11 @@ resources:
           - get_param: UpgradeInitCommand
 
   UpgradeInitDeployment:
-    type: OS::Heat::SoftwareDeployment
+    type: OS::TripleO::SoftwareDeployment
     properties:
       name: UpgradeInitDeployment
       server: {get_resource: deployed-server}
+      server_name: {get_attr: [deployed-server, name]}
       config: {get_resource: UpgradeInitConfig}
 
 
@@ -79,10 +80,12 @@ resources:
         instance-id: {get_resource: deployed-server}
 
   InstanceIdDeployment:
-    type: OS::Heat::StructuredDeployment
+    type: OS::TripleO::StructuredDeployment
     properties:
+      name: InstanceIdDeployment
       config: {get_resource: InstanceIdConfig}
       server: {get_resource: deployed-server}
+      server_name: {get_attr: [deployed-server, name]}
     depends_on: UpgradeInitDeployment
 
   HostsEntryConfig:
@@ -101,10 +104,12 @@ resources:
           description: hostname
 
   HostsEntryDeployment:
-    type: OS::Heat::SoftwareDeployment
+    type: OS::TripleO::SoftwareDeployment
     properties:
+      name: HostsEntryDeployment
       config: {get_resource: HostsEntryConfig}
       server: {get_resource: deployed-server}
+      server_name: {get_attr: [deployed-server, name]}
 
   DeployedServerBootstrapConfig:
     type: OS::TripleO::DeployedServer::Bootstrap
@@ -118,7 +123,7 @@ resources:
       name:
         list_join:
           - '-'
-          - - {get_attr: [HostsEntryDeployment, hostname]}
+          - - {get_attr: [HostsEntryDeployment, resource.TripleOSoftwareDeployment, hostname]}
             - ctlplane
       replacement_policy: AUTO
 
@@ -130,4 +135,5 @@ outputs:
       ctlplane:
         - {get_attr: [ControlPlanePort, fixed_ips, 0, ip_address]}
   name:
-    value: {get_attr: [HostsEntryDeployment, hostname]}
+    # value: {get_param: name}
+    value: {get_attr: [HostsEntryDeployment, resource.TripleOSoftwareDeployment, hostname]}

@@ -256,14 +256,15 @@ resources:
       DefaultPasswords: {get_attr: [DefaultPasswords, passwords]}
 
   {{role.name}}HostsDeployment:
-    type: OS::Heat::StructuredDeployments
+    type: OS::TripleO::StructuredDeployments
     properties:
       name: {{role.name}}HostsDeployment
       config: {get_attr: [hostsConfig, config_id]}
       servers: {get_attr: [{{role.name}}, attributes, nova_server_resource]}
+      server_names: {get_attr: [{{role.name}}, attributes, hostname]}
 
   {{role.name}}AllNodesDeployment:
-    type: OS::Heat::StructuredDeployments
+    type: OS::TripleO::StructuredDeployments
     depends_on:
 {% for role_inner in roles %}
       - {{role_inner.name}}HostsDeployment
@@ -272,6 +273,7 @@ resources:
       name: {{role.name}}AllNodesDeployment
       config: {get_attr: [allNodesConfig, config_id]}
       servers: {get_attr: [{{role.name}}, attributes, nova_server_resource]}
+      server_names: {get_attr: [{{role.name}}, attributes, hostname]}
       input_values:
         # Note we have to use yaql to look up the first hostname/ip in the
         # list because heat path based attributes operate on the attribute
@@ -288,12 +290,13 @@ resources:
             data: {get_attr: [{{role.name}}, ip_address]}
 
   {{role.name}}AllNodesValidationDeployment:
-    type: OS::Heat::StructuredDeployments
+    type: OS::TripleO::StructuredDeployments
     depends_on: {{role.name}}AllNodesDeployment
     properties:
       name: {{role.name}}AllNodesValidationDeployment
       config: {get_resource: AllNodesValidationConfig}
       servers: {get_attr: [{{role.name}}, attributes, nova_server_resource]}
+      server_names: {get_attr: [{{role.name}}, attributes, hostname]}
 
   {{role.name}}IpListMap:
     type: OS::TripleO::Network::Ports::NetIpListMap
@@ -623,6 +626,10 @@ resources:
       servers:
 {% for role in roles %}
         {{role.name}}: {get_attr: [{{role.name}}, attributes, nova_server_resource]}
+{% endfor %}
+      server_names:
+{% for role in roles %}
+        {{role.name}}: {get_attr: [{{role.name}}, attributes, hostname]}
 {% endfor %}
       role_data:
 {% for role in roles %}

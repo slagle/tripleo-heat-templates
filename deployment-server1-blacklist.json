@@ -1,0 +1,19 @@
+{ "data":
+ {
+  "blacklist":
+    [
+        { ".*HostsDeployment": [".*"]},
+        { ".*AllNodesDeployment": [".*"]},
+        { ".*AllNodesValidationDeployment": [".*"]},
+        { ".*UpgradeInitDeployment": [".*"]},
+        { "ControllerDeployedServerDeployment": [".*"]},
+        { "ComputeDeployedServerDeployment": [".*"]},
+        { "UpdateDeployment": [".*"]}
+    ],
+  "server": "1",
+  "server_name": "compute1",
+  "deployment_name": "ControllerDeployedHostsDeployment",
+  "signal_transport": "CFN_SIGNAL"
+}
+
+}

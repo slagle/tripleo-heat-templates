@@ -1,0 +1,54 @@
+heat_template_version: ocata
+
+parameters:
+  name:
+    type: string
+  server:
+    type: string
+  server_name:
+    type: string
+    default: ""
+  config:
+    type: string
+  input_values:
+    type: json
+    default: {}
+  actions:
+    type: comma_delimited_list
+    default: ['CREATE', 'UPDATE']
+  signal_transport:
+    type: string
+    default: CFN_SIGNAL
+  DeploymentActionBlacklist:
+    type: json
+    default: {}
+
+resources:
+
+  Server:
+    type: OS::Heat::Value
+    properties:
+      type: json
+      value:
+        yaql:
+          expression: let(server_name => $.data.server_name, server => $.data.server, blacklist => $.data.blacklist, deployment_name => $.data.deployment_name, signal_transport => $.data.signal_transport) -> switch($blacklist.where($deployment_name =~ $.keys().first()).first(default=>{}).values().first(default=>[]).where($server_name =~ $).len() = 0 => dict(server => $server, signal_transport => $signal_transport), true => dict(server => "", signal_transport => NO_SIGNAL))
+          data:
+            blacklist: {get_param: DeploymentActionBlacklist}
+            server: {get_param: server}
+            server_name: {get_param: server_name}
+            deployment_name: {get_param: name}
+            signal_transport: {get_param: signal_transport}
+
+  TripleOSoftwareDeployment:
+    type: OS::Heat::StructuredDeployment
+    properties:
+      name: {get_param: name}
+      server: {get_attr: [Server, value, server]}
+      config: {get_param: config}
+      actions: {get_param: actions}
+      signal_transport: {get_attr: [Server, value, signal_transport]}
+      input_values: {get_param: input_values}
+
+outputs:
+  OS::stack_id:
+    value: {get_resource: TripleOSoftwareDeployment}
